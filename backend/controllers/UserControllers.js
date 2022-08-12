@@ -3,7 +3,9 @@ const userModels = require("../models/user.models");
 const createUser = async(req, res) => {
     const newUser = new userModels({
         name: req.body.name,
-
+        email: req.body.name,
+        password: req.body.password,
+        creditcard: req.body.creditcard,
     });
     try {
         const savedUser = await newUser.save();
