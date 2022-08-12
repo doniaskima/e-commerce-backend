@@ -17,6 +17,8 @@
      console.log("mongodb failed with", err);
  });
 
+ //import routes
+ const routerProduct = require("./routes/ProductRoute");
 
 
  //middleware
@@ -26,9 +28,12 @@
  app.use(helmet());
  app.use(compression());
 
+ // import routes
+
+ app.use("/api", routerProduct);
 
  //server listening
- const port = 8000;
+ const port = 5000;
 
  app.listen(port, () => {
      console.log(`Example app listening on port ${port}`);

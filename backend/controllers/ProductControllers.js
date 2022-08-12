@@ -1,65 +1,73 @@
-const productModels = require("../models/ProductModels");
+const Product = require("../models/ProductModel")
 
-const createProduct = async(req, res) => {
-    const newProduct = new productModels({
-        name: req.body.name,
-        description: req.body.description,
-        price: req.body.price,
-        color: req.body.color,
-        ratings: req.body.ratings,
-        category: req.body.category,
-        Stock: req.body.Stock,
-        user: req.verifiedUser._id,
+
+//  Create PRoduct
+exports.createProduct = async(req, res, next) => {
+    const product = await Product.create(req.body);
+    res.status(201).json({
+        success: true,
+        product
+
+    })
+}
+
+
+// get all products 
+exports.getAllProducts = async(req, res) => {
+    const products = await Product.find();
+    res.status(200).json({
+        success: true,
+        products
+    })
+}
+
+// Update Product
+exports.updateProduct = async(req, res) => {
+    let product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(500).json({
+            success: false,
+            message: "Product is not found with this id"
+        })
+    }
+    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        new: true
     });
-    try {
-        const savedProduct = await newProduct.save();
-        return res.status(200).json(savedProduct);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
+    res.status(200).json({
+        success: true,
+        product
+    })
+}
 
-const getProducts = async(req, res) => {
-    try {
-        const products = await productModels.find();
-        return res.status(200).json(products);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const getProduct = async(req, res) => {
-    const id = req.params.productId;
+// delete Product
 
-    try {
-        const product = await productModels.findById(id);
-        return res.status(200).json(product);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const deleteProduct = async(req, res) => {
-    const id = req.params.productId;
-    try {
-        const product = await productModels.findByIdAndDelete(id);
-        return res.status(200).json(product);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const updateProduct = async(req, res) => {
-    const id = req.params.productId;
-    try {
-        const product = await productModels.findByIdAndUpdate(id, req.body, {
-            new: true,
+exports.deleteProduct = async(req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+
+        return res.status(500).json({
+            success: false,
+            message: "Product is not found with this id",
         });
-        return res.status(200).json(product);
-    } catch (err) {
-        return res.status(500).json(err);
     }
-};
+    await product.remove();
+    res.status(200).json({
+        success: true,
+        message: "Product delete succesfully"
+    })
+}
 
-module.exports.createProduct = createProduct;
-module.exports.getProducts = getProducts;
-module.exports.getProduct = getProduct;
-module.exports.deleteProduct = deleteProduct;
-module.exports.updateProduct = updateProduct;
+exports.getSingleProduct = async(req, res, next) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(500).json({
+            success: false,
+            message: "Product is not found with this id",
+        });
+    }
+    await product.remove();
+    res.status(200).json({
+        success: true,
+        product
+    });
+}
