@@ -1,61 +1,75 @@
-const userModels = require("../models/user.models");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const asyncHandler = require("express-async-handler");
+const User = require("../models/UserModel");
 
-const createUser = async(req, res) => {
-    const newUser = new userModels({
-        name: req.body.name,
-        email: req.body.name,
-        password: req.body.password,
-        creditcard: req.body.creditcard,
+const registerUser = asyncHandler(async(req, res) => {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+        res.status(400);
+        throw new Error("please add all fields");
+    }
+    // check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        res.status(400);
+        throw new Error("User already exists");
+    }
+    //hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    //create user account
+    const user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
     });
-    try {
-        const savedUser = await newUser.save();
-        return res.status(200).json(savedUser);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-
-const getUsers = async(req, res) => {
-    try {
-        const users = await userModels.find();
-        return res.status(200).json(users);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const getUser = async(req, res) => {
-    const id = req.params.userId;
-
-    try {
-        const user = await userModels.findById(id);
-        return res.status(200).json(user);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const deleteUser = async(req, res) => {
-    const id = req.params.userId;
-    try {
-        const user = await userModels.findByIdAndDelete(id);
-        return res.status(200).json(user);
-    } catch (err) {
-        return res.status(500).json(err);
-    }
-};
-const updateUser = async(req, res) => {
-    const id = req.params.userId;
-    try {
-        const user = await userModels.findByIdAndUpdate(id, req.body, {
-            new: true,
+    if (user) {
+        res.status(201).json({
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            token: generateToken(user._id),
         });
-        return res.status(200).json(user);
-    } catch (err) {
-        return res.status(500).json(err);
+    } else {
+        res.status(400);
+        throw new Error("Invalid user data");
     }
-};
+});
+const loginUser = asyncHandler(async(req, res) => {
+    const { email, password } = req.body;
+    //check for user email
+    const user = await User.findOne({ email });
+    if (user && (await bcrypt.compare(password, user.password))) {
+        res.json({
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            token: generateToken(user._id),
+        });
+    } else {
+        res.status(400);
+        throw new Error("Invalid credentials");
+    }
+});
+const getme = asyncHandler(async(req, res) => {
+    const { _id, name, email } = await User.findById(req.user.id);
+    res.status(200).json({
+        id: _id,
+        name,
+        email,
+    });
+});
 
-module.exports.createUser = createUser;
-module.exports.getUsers = getUsers;
-module.exports.getUser = getUser;
-module.exports.deleteUser = deleteUser;
-module.exports.updateUser = updateUser;
+//generate token
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: "20d",
+    });
+};
+module.exports = {
+    registerUser,
+    loginUser,
+    getme,
+};
