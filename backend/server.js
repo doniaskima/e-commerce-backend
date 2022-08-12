@@ -6,7 +6,7 @@
  const morgan = require("morgan");
  const helmet = require("helmet");
  const compression = require("compression");
-
+ const ErrorHandler = require("./middlewares/error");
 
  //DB connection
  mongoose.connect(process.env.MONGO_URI);
@@ -31,6 +31,7 @@
  // import routes
 
  app.use("/api", routerProduct);
+ app.use(ErrorHandler);
 
  //server listening
  const port = 5000;
