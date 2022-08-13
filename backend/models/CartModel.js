@@ -14,16 +14,16 @@ const CartSchema = mongoose.Schema({
 CartSchema.pre("validate", function(next) {
     this.calculateTotal();
     next();
-})
+});
 
 CartSchema.methods.calculateTotal = function() {
     console.log("console From cart model", this.item);
-    this.totalPrice = 0,
-        this.items.forEach((item) => {
-            this.totalPrice += item.total;
-        })
+    (this.totalPrice = 0),
+    this.items.forEach((item) => {
+        this.totalPrice += item.total;
+    });
     this.totalPriceWithTax =
         this.totalPrice + (this.totalPrice * this.taxPercentage) / 100;
-}
+};
 
 module.exports = mongoose.model("Cart", CartSchema);
