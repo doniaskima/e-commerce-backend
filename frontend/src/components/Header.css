@@ -14,3 +14,21 @@
     margin: 0 20px;
     margin-top: 18px;
 }
+.headerSearch{
+    display:flex;
+    flex:1;
+    align-items:center;
+    border-radius:25px;
+}
+.searchInput{
+    height:13px;
+    padding:10px;
+    border:none;
+    width:40%;
+
+}
+.searchIcon{
+    padding:5px;
+    height:22px;
+  background-color: #cd9042;
+}
