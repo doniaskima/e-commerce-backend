@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
-const User = require("../models/UserModel");
+const User = require("../models/user.models");
 
 const registerUser = asyncHandler(async(req, res) => {
     const { name, email, password } = req.body;

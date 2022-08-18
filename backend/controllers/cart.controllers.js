@@ -1,4 +1,4 @@
-const Cart = require("../models/CartModel");
+const Cart = require("../models/cart.models");
 
 const getOwnedCart = async(req, res) => {
     const cartId = req.verifiedUser.cart;

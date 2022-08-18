@@ -55,5 +55,10 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
     },
+    questions:[{type: mongoose.Schema.ObjectId ,ref:"Question",
+    }],
+    opinions: [{type: mongoose.Schema.ObjectId, ref:"Opinion",
+    }],
+    
 });
 module.exports = mongoose.model("Product", productSchema);
